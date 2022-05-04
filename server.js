@@ -8,6 +8,7 @@ const fs = require('fs'); // filesystem module
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
+const etherdb = require('./etherdb');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const USIO_ID = process.env.USIO_ID;
@@ -36,7 +37,7 @@ http.createServer((req, res) => {
             data += chunk;
         });
         req.on('end', () => {
-            if (data != null) {
+            if (data == null) {
                 console.log('No post data');
                 res.end();
                 return;
@@ -63,7 +64,15 @@ client.on("ready", argClient => {
 });
 
 client.on('messageCreate', async msg => {
-    if (msg.author.bot == null) return;
+    if (msg.author.bot) return;
+    if (msg.content.indexOf('@everyone') >= 0 && msg.guildId === TESTSERVER_GUILD_ID) {
+        console.log('someone used everyone');
+        if (!(await permissionCheck(msg.guild.members.cache.get(msg.author.id), false))) {
+            msg.delete();
+            msg.channel.send(`<@${msg.author.id}> tried to use ＠everyone`);
+        }
+        return;
+    }
     if (msg.content.indexOf(PREFIX) === 0) {
         const parts = msg.content.slice(PREFIX.length).trim().split(/ +/g);
         const title = parts.shift().toLowerCase();
@@ -137,34 +146,45 @@ Didn\'t you mistake the minecraft server IP?`);
                 else
                     msg.channel.send('Oops, you can\'t see that in non nsfw channels!');
                 break;
-            /*
             case 'debug0':
                 console.log('called');
-                if (msg.channel.nsfw) {
+                if (msg.channel.nsfw && msg.author.id === HAL_ID) {
                     hentaiCollection.specifiedCall(parts.shift()?.toLowerCase(), parts.shift(), parts.shift(), msg.channel);
                 }
                 break;
             case 'debug1':
-                if (msg.channel.nsfw) {
+                if (msg.channel.nsfw && msg.author.id === HAL_ID) {
                     msg.channel.send('command request');
                     hentaiCollection.sendAll();
                 }
-                break;*/
+                break;
+            case 'debug2':
+                if (msg.author.id === HAL_ID && msg.guildId === TESTSERVER_GUILD_ID) { // @everyoneは、削除しても通知が残ってた…どうしよう
+                    const startMillisec = new Date();
+                    while (new Date() - startMillisec < 5000);
+                    msg.channel.send('@everyone');
+                }
+            case 'dbdebug':
+                if (await permissionCheck(msg.guild.members.cache.get(msg.author.id), true))
+                    etherdb.debug(msg.guildId, 'any');
+                else
+                    msg.channel.send('Not allowed to execute this command!');
+                break;
         }
+        return;
     }
-    else {
-        let content = msg.content.replace(/理由：|理由:/, '理由:').replace(/ID:|ID：|ID：|ID:/, 'ID:');
-        if (content.includes('理由:') && content.includes('ID:')) {
 
-            let userid = msg.content.match(/(?<=ID:)(.*)/g)[0];
-            if (userid.includes('理由:'))
-                userid = userid.match(/(.*)(?=理由:)/g)[0];
-            const report =
-                `--------${punishments[Math.floor(Math.random() * punishments.length)]}--------
+    let content = msg.content.replace(/理由：|理由:/, '理由:').replace(/ID:|ID：|ID：|ID:/, 'ID:');
+    if (content.includes('理由:') && content.includes('ID:')) {
+
+        let userid = msg.content.match(/(?<=ID:)(.*)/g)[0];
+        if (userid.includes('理由:'))
+            userid = userid.match(/(.*)(?=理由:)/g)[0];
+        const report =
+            `--------${punishments[Math.floor(Math.random() * punishments.length)]}--------
 担当MOD: ${msg.author.username}
 ユーザー名: ${userid}`;
-            msg.channel.send(report);
-        }
+        msg.channel.send(report);
     }
 });
 
@@ -207,7 +227,7 @@ client.on('interactionCreate', async interaction => {
             break;
         case 'kenzen':
             if (interaction.channel.nsfw) {
-                const loli = interaction.options.getString('loli'); // actual category is loli_sfw
+                const loli = interaction.options.getString('category'); // actual category is loli_sfw
                 if (loli != null) {
                     interaction.channel.send('/kenzen category:loli');
                     const url = await hentaiCollection.getRandomUrl(loli, interaction.channel.messages, RETRY_LIMIT);
@@ -239,6 +259,27 @@ client.on('interactionCreate', async interaction => {
         case 'mogtam':
         case 'm':
             sendMention(MOGTAM_ID, interaction.options.getString('m'), (message) => interaction.reply(message));
+            break;
+        case 'resetdatabase':
+            if (!(await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true))) {
+                await interaction.reply('You are not allowed!');
+            }
+            else {
+                etherdb.resetDatabase(interaction.guildId);
+
+                interaction.channel.send('Reset all the settings and data for me!');
+                await interaction.reply('success');
+                await interaction.deleteReply();
+            }
+            break;
+        case 'setproperty':
+            if (!(await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true))) {
+                await interaction.reply('You are not allowed!');
+                break;
+            } else {
+                await interaction.reply('success');
+                await interaction.deleteReply();
+            }
             break;
     }
 });
@@ -339,4 +380,8 @@ function sendMention(mentionId, content, sender) {
     if (content != null)
         message += " " + content;
     sender(message);
+}
+
+async function permissionCheck(member, includeHal) {
+    return member.roles.cache.some((role) => role.name === 'leader' || role.name === 'admin') || (member.id === HAL_ID && includeHal);
 }
