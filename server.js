@@ -1,6 +1,6 @@
 ﻿const http = require('http');
 const querystring = require('querystring');
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageManager } = require('discord.js');
 const nomlish = require('nomlish');
 const pinger = require('minecraft-server-ping');
 const kuromoji = require('kuromoji');
@@ -9,6 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
 const etherdb = require('./etherdb');
+const axios = require('axios');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const USIO_ID = process.env.USIO_ID;
@@ -20,10 +21,12 @@ const GUILD_ID = process.env.GUILD_ID;
 const TESTSERVER_GUILD_ID = process.env.TESTSERVER_GUILD_ID;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
+const BANNER_CHANNEL_ID = '976506255092875335';
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const commands = [];
 const kuromojiBuilder = kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict' });
 const wordMap = {};
+let bannerCollection = [];
 const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:',
     'サイレンス完了:regional_indicator_s:', '警告完了:regional_indicator_w:',
     'ADM報告完了:regional_indicator_a:', 'CRF取り下げ完了:regional_indicator_t:'
@@ -49,6 +52,12 @@ http.createServer((req, res) => {
                 res.end();
                 return;
             }
+            if (dataObject.type == 'daychange') {
+                console.log('Day has changed');
+                updateBannerCollection().then(() => { setRandomBanner(null); });
+                res.end();
+                return;
+            }
             res.end();
         });
     }
@@ -61,6 +70,7 @@ http.createServer((req, res) => {
 client.on("ready", argClient => {
     console.log('On ready event');
     client.user.setActivity('Input slash / to view the command list', { type: 'PLAYING' });
+    updateBannerCollection();
 });
 
 client.on('messageCreate', async msg => {
@@ -169,6 +179,22 @@ Didn\'t you mistake the minecraft server IP?`);
                     etherdb.debug(msg.guildId, 'any');
                 else
                     msg.channel.send('Not allowed to execute this command!');
+                break;
+            case 'show64':
+                if (msg.author.id === HAL_ID) {
+                    const url = "https://cdn.discordapp.com/attachments/904002699970891836/"+parts.shift();
+                    msg.channel.send('process');
+                    const buffer = await toDataURL(url);
+                    msg.channel.send(buffer.toString('base64').slice(0, 100));
+                    // msg.channel.send(base64); TOO MUCH LENGTH LOL
+                }
+                break;
+            case 'manual64':
+                if (msg.author.id === HAL_ID) {
+                    const url = "https://cdn.discordapp.com/attachments/904002699970891836/" + parts.shift();
+                    msg.channel.send('the banner should have been changed');
+                    await msg.guild.setBanner(url);
+                }
                 break;
         }
         return;
@@ -281,6 +307,16 @@ client.on('interactionCreate', async interaction => {
                 await interaction.deleteReply();
             }
             break;
+        case 'changebanner':
+            if (interaction.guildId === GUILD_ID && permissionCheck(interaction.guild.members.cache.get(interaction.user.id, true))) {
+                await updateBannerCollection();
+                setRandomBanner(null);
+                await interaction.reply('Re-register server banner images for ether. Wait a moment while I change the banner.');
+            }
+            else {
+                await interaction.reply('You can\'t execute the command as your permission or channel');
+            }
+            break;
     }
 });
 
@@ -384,4 +420,45 @@ function sendMention(mentionId, content, sender) {
 
 async function permissionCheck(member, includeHal) {
     return member.roles.cache.some((role) => role.name === 'leader' || role.name === 'admin') || (member.id === HAL_ID && includeHal);
+}
+
+async function updateBannerCollection() {
+    console.log('Reloading server banner images...');
+    bannerCollection = [];
+    const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(BANNER_CHANNEL_ID);
+    await channel.messages
+        .fetch({ limit: 100 })
+        .then(messages => {
+            messages.forEach(message => {
+                if (!message.author.bot && message.attachments.size > 0) {
+                    message.attachments.forEach(attachment => {
+                        if (attachment.contentType.toLowerCase().includes('image'))
+                            bannerCollection.push(attachment.url);
+                    });
+                }
+            });
+            console.log('Reloaded ' + bannerCollection.length + ' server banner images');
+        });
+}
+
+function setRandomBanner(channel) {
+    if (bannerCollection.length <= 0) {
+        if (channel != null) {
+            channel.send('No banner images are registered.'); // channel?.send('')の方がよい?
+        }
+        return;
+    }
+    const guild = client.guilds.cache.get(GUILD_ID);
+    // 画像データをbase64(string)に変換し引数として渡したい setBanner(toDataURL('https://...'))
+    // OR URLを渡すだけ
+    const index = Math.floor(Math.random() * bannerCollection.length);
+    guild.setBanner(bannerCollection[index]);
+    console.log('Server banner has been changed to id:' + index);
+}
+
+async function toDataURL(url) {
+
+    const response = await axios.get(url, { responseType: 'arraybuffer' })
+    const buffer = Buffer.from(response.data, "utf-8");
+    return buffer;
 }

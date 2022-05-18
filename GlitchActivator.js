@@ -1,4 +1,4 @@
-var GLITCH_URL = 'https://YourUrlHere.glitch.me';
+var GLITCH_URL = "https://nameishere.glitch.me";
 
 // Repeat this every 5 minutes
 function wakeGlitch() {
@@ -7,7 +7,12 @@ function wakeGlitch() {
     };
     sendGlitch(GLITCH_URL, json);
 }
-
+function sendDayChange() {
+    var json = {
+        'type': 'daychange'
+    };
+    sendGlitch(GLITCH_URL, json);
+}
 function sendGlitch(uri, json) {
     var params = {
         'contentType': 'application/json; charset=utf-8',

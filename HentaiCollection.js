@@ -6,6 +6,8 @@ const Loli = require('lolis.life'); // https://www.npmjs.com/package/lolis.life
 const nekoClient = new Neko();
 const loliClient = new Loli();
 
+// NekosとHMfullがバージョンアップ. 今なら使えるか？
+
 const category2api = {
     kenzen: [
         // async () => hmfull.HMtai.sfw.wallpaper()['url'],
