@@ -1,4 +1,8 @@
-﻿const http = require('http');
+﻿// git add .
+// git commit -m "message"
+// git push origin main
+
+const http = require('http');
 const querystring = require('querystring');
 const { Client, Intents, MessageManager } = require('discord.js');
 const nomlish = require('nomlish');
@@ -193,7 +197,7 @@ Didn\'t you mistake the minecraft server IP?`);
                 if (msg.author.id === HAL_ID) {
                     const url = "https://cdn.discordapp.com/attachments/904002699970891836/" + parts.shift();
                     msg.channel.send('the banner should have been changed');
-                    await msg.guild.setBanner(url);
+                    await client.guilds.cache.get(GUILD_ID).setBanner(url);
                 }
                 break;
         }
