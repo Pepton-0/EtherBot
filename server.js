@@ -13,7 +13,6 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
 const etherdb = require('./etherdb');
-const axios = require('axios');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const USIO_ID = process.env.USIO_ID;
@@ -26,6 +25,7 @@ const TESTSERVER_GUILD_ID = process.env.TESTSERVER_GUILD_ID;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
+const AFK_CHANNEL_ID = '974999731317141534';
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const commands = [];
 const kuromojiBuilder = kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict' });
@@ -184,16 +184,7 @@ Didn\'t you mistake the minecraft server IP?`);
                 else
                     msg.channel.send('Not allowed to execute this command!');
                 break;
-            case 'show64':
-                if (msg.author.id === HAL_ID) {
-                    const url = "https://cdn.discordapp.com/attachments/904002699970891836/"+parts.shift();
-                    msg.channel.send('process');
-                    const buffer = await toDataURL(url);
-                    msg.channel.send(buffer.toString('base64').slice(0, 100));
-                    // msg.channel.send(base64); TOO MUCH LENGTH LOL
-                }
-                break;
-            case 'manual64':
+            case 'setbanner':
                 if (msg.author.id === HAL_ID) {
                     const url = "https://cdn.discordapp.com/attachments/904002699970891836/" + parts.shift();
                     msg.channel.send('the banner should have been changed');
@@ -321,6 +312,12 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply('You can\'t execute the command as your permission or channel');
             }
             break;
+    }
+});
+
+client.on('voiceStateUpdate', (oldMember, newMember) => {
+    if (oldMember.channelId === null && newMember.channelId === AFK_CHANNEL_ID) {
+        newMember.member.roles.add('AFK Noob');
     }
 });
 
@@ -458,11 +455,4 @@ function setRandomBanner(channel) {
     const index = Math.floor(Math.random() * bannerCollection.length);
     guild.setBanner(bannerCollection[index]);
     console.log('Server banner has been changed to id:' + index);
-}
-
-async function toDataURL(url) {
-
-    const response = await axios.get(url, { responseType: 'arraybuffer' })
-    const buffer = Buffer.from(response.data, "utf-8");
-    return buffer;
 }
