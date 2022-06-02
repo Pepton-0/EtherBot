@@ -206,6 +206,54 @@ Didn\'t you mistake the minecraft server IP?`);
 担当MOD: ${msg.author.username}
 ユーザー名: ${userid}`;
         msg.channel.send(report);
+        return;
+    }
+
+   
+    // 同一絵文字を複数ユーザーが入力した場合、便乗して同じ絵文字を送る
+    // 最新コメントで投稿された絵文字それぞれが、以前の別ユーザーの投稿でも2回使用されている場合に反応する
+    const msgList = [];
+    const emojiRegex = /((?<!\\)<:[^:]+:(\d+)>)|\p{Emoji_Presentation}|\p{Extended_Pictographic}/gmu; // before:'/[:]\w+[:]/g'
+    // :ok:というメッセージから抽出できなかった. なんで？ 修正を加える必要がありそうだ
+    await msg.channel.messages
+        .fetch({ limit: 10 })
+        .then(messages => {
+            // console.log('-----');
+            messages.forEach(message => { // 最新のメッセージから順に古いほうへと読み込まれる
+                const foundEmojis = message.content.match(emojiRegex) ?? [];
+                msgList.push({
+                    array: foundEmojis,
+                    userid: message.author.id,
+                    isBot: !(!message.author.bot) // 汚い…
+                });
+                // console.log(message.content + '.Number: ' + foundEmojis.length);
+            });
+        });
+
+    if (msgList.length > 0 && !msgList[0].isBot && Math.floor(Math.random() * 2) == 0) { // 鬱陶しいならここの確率を下げる
+        let postStr = '';
+        msgList[0].array.forEach(emoji => {
+            const users = [];
+            let matchCount = 0; //3以上になったらメッセージを送る.
+            for (const lateMsg of msgList) {
+                if (lateMsg.array.some(value => value === emoji)) {
+                    if (lateMsg.isBot) {
+                        matchCount = -99999; // あまりに力ずくな解決方法. もっとスマートな方法がいいなぁ
+                    }
+                    else if (!users.some(value => value === lateMsg.userid)) {
+                        users.push(lateMsg.userid); // 一人だけのスパムでも反応させたいならここを削除する
+                        matchCount++;
+                    }
+                }
+            }
+            // console.log('matchCount:' + matchCount);
+            if (matchCount >= 3) {
+                postStr += emoji;
+            }
+        });
+        if (postStr.length > 0) {
+            msg.channel.send(postStr);
+        }
     }
 });
 
@@ -315,9 +363,41 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+/*
 client.on('voiceStateUpdate', (oldMember, newMember) => {
+    console.log('Help me plz');
+    // このイベントが呼び出されていない?
     if (oldMember.channelId === null && newMember.channelId === AFK_CHANNEL_ID) {
-        newMember.member.roles.add('AFK Noob');
+        console.log('someone entered');
+        newMember.member.roles.add(newMember.guild.roles.cache.find(role => role.name === 'AFK Noob'));
+    }
+});*/
+
+client.on("voiceStateUpdate", (oldState, newState) => {
+    if (newState && oldState) {
+
+        //newState関係
+        console.log(`NEW:userid   : ${newState.id}`);       //ユーザID
+        console.log(`NEW:channelid: ${newState.channelID}`);//チャンネルID、nullならdisconnect
+        console.log(`NEW:guildid  : ${newState.guild.id}`); //ギルドID
+
+        //oldState関係
+        console.log(`OLD:userid   : ${oldState.id}`);       //ユーザID
+        console.log(`OLD:channelid: ${oldState.channelID}`);//チャンネルID、nullならconnect
+        console.log(`OLD:guildid  : ${oldState.guild.id}`); //ギルドID
+
+        if (oldState.channelID === newState.channelID) {
+            //ここはミュートなどの動作を行ったときに発火する場所
+            concole.log(`other`);
+        }
+        if (oldState.channelID === null && newState.channelID != null) {
+            //ここはconnectしたときに発火する場所
+            concole.log(`connect`);
+        }
+    if (oldState.channelID != null && newState.channelID === null) {
+        //ここはdisconnectしたときに発火する場所
+        console.log(`disconnect`);
+        }
     }
 });
 
