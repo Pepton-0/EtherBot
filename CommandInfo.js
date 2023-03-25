@@ -8,13 +8,8 @@ module.exports.data = () => {
             .setName('help')
             .setDescription('Show you command list of this bot.'),
         new SlashCommandBuilder()
-            .setName('madness')
-            .setDescription('Make a random mess Japanese sentence.'),
-        new SlashCommandBuilder()
             .setName('changebanner')
             .setDescription('Select a random server banner in banner channel. You can use this only in banner channel'),
-        buildMentionCommand('usio', 'leader Usio'),
-        buildMentionCommand('u', 'leader Usio'),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),

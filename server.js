@@ -4,18 +4,14 @@
 
 const http = require('http');
 const querystring = require('querystring');
-const { Client, Intents, MessageManager } = require('discord.js');
-const nomlish = require('nomlish');
+const { Client, GatewayIntentBits  } = require('discord.js');
 const pinger = require('minecraft-server-ping');
-const kuromoji = require('kuromoji');
-const fs = require('fs'); // filesystem module
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
 const etherdb = require('./etherdb');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const USIO_ID = process.env.USIO_ID;
 const NATSUMIKAN_ID = process.env.NATSUMIKAN_ID;
 const HAL_ID = process.env.HAL_ID;
 const MOGTAM_ID = process.env.MOGTAM_ID;
@@ -26,15 +22,14 @@ const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
 const AFK_CHANNEL_ID = '974999731317141534';
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 const commands = [];
-const kuromojiBuilder = kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict' });
-const wordMap = {};
 let bannerCollection = [];
 const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:',
     'サイレンス完了:regional_indicator_s:', '警告完了:regional_indicator_w:',
     'ADM報告完了:regional_indicator_a:', 'CRF取り下げ完了:regional_indicator_t:'
-    , '確認中:regional_indicator_c:', 'BAN完了:regional_indicator_c:']
+    , '確認中:regional_indicator_c:', 'BAN完了:regional_indicator_c:'];
+const vcTextSpeakers = []; // = new String[][]
 
 // Glitch上で動かすとき一定時間経過でスリープする仕様がある。これを阻止するため、Google Apps Scriptから強制的にたたき起こす
 http.createServer((req, res) => {
@@ -79,12 +74,10 @@ client.on("ready", argClient => {
 
 client.on('messageCreate', async msg => {
     if (msg.author.bot) return;
-    if (msg.content.indexOf('@everyone') >= 0 && msg.guildId === TESTSERVER_GUILD_ID) {
-        console.log('someone used everyone');
-        if (!(await permissionCheck(msg.guild.members.cache.get(msg.author.id), false))) {
-            msg.delete();
-            msg.channel.send(`<@${msg.author.id}> tried to use ＠everyone`);
-        }
+    let parent = msg.channel.parent;
+    if (msg.content.trim().indexOf('!sh') === 0 && msg.guildId === TESTSERVER_GUILD_ID
+        && typeof (parent) === "CategoryChannel" && parent.name.toLowerCase().indexOf("voice") >= 0) {
+        console.log('someone used !sh');
         return;
     }
     if (msg.content.indexOf(PREFIX) === 0) {
@@ -92,28 +85,6 @@ client.on('messageCreate', async msg => {
         const title = parts.shift().toLowerCase();
 
         switch (title) {
-            case 'nomlish':
-                const arg = parts.shift();
-                if (arg === undefined) {
-                    const sentence = makeSentence();
-                    nomlish.translate(sentence, 2).then((result) => {
-                        if (result != null) {
-                            msg.channel.send(`原文: ${sentence}
-${result}`);
-                        }
-                        else // 翻訳不能の場合
-                            msg.channel.send(`Failed to send Nomlish: ${result}`);
-                    });
-                }
-                else {
-                    nomlish.translate(parts.shift(), /*level*/2).then((result) => {
-                        if (result != null)
-                            msg.channel.send(result);
-                        else // 翻訳不能の場合
-                            msg.channel.send(`Failed to send Nomlish`);
-                    });
-                }
-                break;
             case 'mss':
                 // https://github.com/mharj/minecraft-ping
                 const pastTime = Date.now();
@@ -121,20 +92,12 @@ ${result}`);
                 try {
                     const data = await pinger.ping(ip);
                     const currentTime = Date.now();
-                    msg.channel.send(`Ping to ' + ${ip}
+                    msg.channel.send(`Ping to ${ip}
                     ${(currentTime - pastTime).toString()} ms`);
                 } catch (error) {
                     msg.channel.send(`Failed to check ping to ${ip}
 Didn\'t you mistake the minecraft server IP?`);
                 }
-                break;
-            case 'analyze':
-                kuromojiBuilder.build((err, tokenizer) => {
-                    if (err)
-                        throw err;
-                    const tokens = tokenizer.tokenize(parts.shift());
-                    msg.channel.send(JSON.stringify(tokens));
-                });
                 break;
             case 'ihentai': // For those who can't use interaction commands
                 if (msg.channel.nsfw) {
@@ -172,12 +135,13 @@ Didn\'t you mistake the minecraft server IP?`);
                     hentaiCollection.sendAll();
                 }
                 break;
+            /*
             case 'debug2':
                 if (msg.author.id === HAL_ID && msg.guildId === TESTSERVER_GUILD_ID) { // @everyoneは、削除しても通知が残ってた…どうしよう
                     const startMillisec = new Date();
                     while (new Date() - startMillisec < 5000);
                     msg.channel.send('@everyone');
-                }
+                }*/
             case 'dbdebug':
                 if (await permissionCheck(msg.guild.members.cache.get(msg.author.id), true))
                     etherdb.debug(msg.guildId, 'any');
@@ -269,13 +233,9 @@ client.on('interactionCreate', async interaction => {
                 /nomlish <日本語文章>
                 /mss <IPアドレスかドメイン>
                 /ihentai    (iPhone利用者向け)
-                /ikenzen    (iPhone利用者向け)
-                /analyze <日本語文章>`,
+                /ikenzen    (iPhone利用者向け)`,
                 ephemeral: true
             });
-            break;
-        case 'madness':
-            await interaction.reply(makeSentence());
             break;
         case 'hentai':
             if (interaction.channel.nsfw) {
@@ -312,10 +272,6 @@ client.on('interactionCreate', async interaction => {
             }
             else
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
-            break;
-        case 'usio':
-        case 'u':
-            sendMention(USIO_ID, interaction.options.getString('m'), (message) => interaction.reply(message));
             break;
         case 'natsumikan':
         case 'n':
@@ -375,7 +331,6 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
 client.on("voiceStateUpdate", (oldState, newState) => {
     if (newState && oldState) {
-
         //newState関係
         console.log(`NEW:userid   : ${newState.id}`);       //ユーザID
         console.log(`NEW:channelid: ${newState.channelID}`);//チャンネルID、nullならdisconnect
@@ -426,71 +381,6 @@ const rest = new REST({ version: 9 }).setToken(BOT_TOKEN);
 })();
 
 client.login(BOT_TOKEN);
-loadStoryData();
-
-function loadStoryData() {
-    console.log('Started loading story data');
-    const sampleSentence = fs.readFileSync('./sampleSentence.txt').toString();
-    console.log(sampleSentence.substr(0, 100));
-    kuromojiBuilder.build((err, tokenizer) => { // build()は非同期で行われる
-        if (err)
-            throw err;
-        const tokens = tokenizer.tokenize(sampleSentence);
-        const tokenWords = tokens.filter(token => {
-            return token.word_type === 'KNOWN'; // word_type===UNKNOWNの単語は変な奴が多いので除外する
-        });
-
-        // データを登録する
-        for (let i = 0; i < tokenWords.length; i++) {
-            let now = tokenWords[i]?.surface_form;
-            if (now === undefined) now = null;
-            let prev = tokenWords[i - 1]?.surface_form;
-            if (prev === undefined) prev = null;
-
-            let nowArray;
-            if (wordMap[prev] === undefined)
-                nowArray = (wordMap[prev] = []);
-            else
-                nowArray = wordMap[prev];
-            // if (!nowArray.includes(now))
-            nowArray.push(now);
-        }
-
-        console.log("Completed loading " + Object.keys(wordMap).length + " words");
-    });
-}
-
-function chooseRandomWordAfter(word, wordCount) {
-    let words = wordMap[word];
-    if (words === undefined) words = [];
-
-    // 。?!がある場合、それを選ぶ確立を格段に上げる。ただ文章の長さが短すぎないように、単語がある程度溜まったときのみ
-    let endPossibility = [];
-    if (words.includes('。'))
-        endPossibility.push('。')
-    if (words.includes('？'))
-        endPossibility.push('？')
-    if (words.includes('！'))
-        endPossibility.push('！')
-    if (endPossibility.length >= 1 && Math.random() >= 0.2 && wordCount >= 5)
-        return endPossibility[Math.floor(Math.random() * endPossibility.length)];
-    else
-        return words[Math.floor(Math.random() * words.length)];
-}
-
-function makeSentence() {
-    let sentence = [];
-    let word = chooseRandomWordAfter(null, sentence.length);
-    let limitCounter = 0;
-    while (word && limitCounter < 333) {
-        limitCounter++;
-        sentence.push(word);
-        if (word == '。' || word == '！' || word == '？')
-            break;
-        word = chooseRandomWordAfter(word, sentence.length);
-    }
-    return sentence.join('');
-}
 
 function sendMention(mentionId, content, sender) {
     let message = `<@${mentionId}>`;
