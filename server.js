@@ -4,7 +4,7 @@
 
 const http = require('http');
 const querystring = require('querystring');
-const { Client, GatewayIntentBits  } = require('discord.js');
+const { Client, GatewayIntentBits, IntentsBitField, Channel } = require('discord.js');
 const pinger = require('minecraft-server-ping');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -22,14 +22,14 @@ const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
 const AFK_CHANNEL_ID = '974999731317141534';
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
 const commands = [];
 let bannerCollection = [];
 const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:',
     'サイレンス完了:regional_indicator_s:', '警告完了:regional_indicator_w:',
     'ADM報告完了:regional_indicator_a:', 'CRF取り下げ完了:regional_indicator_t:'
     , '確認中:regional_indicator_c:', 'BAN完了:regional_indicator_c:'];
-const vcTextSpeakers = []; // = new String[][]
+const vcShovelUsers = []; // = new string[guildId+channel.name][author.id]
 
 // Glitch上で動かすとき一定時間経過でスリープする仕様がある。これを阻止するため、Google Apps Scriptから強制的にたたき起こす
 http.createServer((req, res) => {
@@ -74,11 +74,22 @@ client.on("ready", argClient => {
 
 client.on('messageCreate', async msg => {
     if (msg.author.bot) return;
-    let parent = msg.channel.parent;
-    if (msg.content.trim().indexOf('!sh') === 0 && msg.guildId === TESTSERVER_GUILD_ID
-        && typeof (parent) === "CategoryChannel" && parent.name.toLowerCase().indexOf("voice") >= 0) {
-        console.log('someone used !sh');
-        return;
+    if (msg.guildId === TESTSERVER_GUILD_ID && msg.member.voice.channel && msg.channel.name.includes('vc')) { // TODO vcチャンネルかどうかの判断があまりに適当同じ階層に同じ名前のvcがあるかで確認したい
+        // Remind the author as shovel user if he uses it.
+        // TODO vcの埋め込み型テキストチャンネルでも反応するようにしたい
+        const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+        const channelName = msg.guildId + msg.channel.name;
+        const authorId = msg.author.id;
+        console.log('text info: channelName[' + channelName + "]: authorId[" + authorId + "] include:" + !!vcShovelUsers[channelName]);
+        if (msg.content.trim().indexOf('!sh') === 0) {
+            if (!vcShovelUsers[channelName]) {
+                vcShovelUsers[channelName] = [authorId];
+                console.log('made new shovel users array + ' + vcShovelUsers);
+            }
+        } else if (vcShovelUsers[channelName] && !vcShovelUsers[channelName].includes(authorId) && !urlPattern.test(msg.content)) {
+            console.log('new shovel user is detected in:' + channelName);
+            vcShovelUsers[channelName].push(authorId);
+        }
     }
     if (msg.content.indexOf(PREFIX) === 0) {
         const parts = msg.content.slice(PREFIX.length).trim().split(/ +/g);
@@ -135,13 +146,6 @@ Didn\'t you mistake the minecraft server IP?`);
                     hentaiCollection.sendAll();
                 }
                 break;
-            /*
-            case 'debug2':
-                if (msg.author.id === HAL_ID && msg.guildId === TESTSERVER_GUILD_ID) { // @everyoneは、削除しても通知が残ってた…どうしよう
-                    const startMillisec = new Date();
-                    while (new Date() - startMillisec < 5000);
-                    msg.channel.send('@everyone');
-                }*/
             case 'dbdebug':
                 if (await permissionCheck(msg.guild.members.cache.get(msg.author.id), true))
                     etherdb.debug(msg.guildId, 'any');
@@ -329,29 +333,40 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     }
 });*/
 
-client.on("voiceStateUpdate", (oldState, newState) => {
+client.on("voiceStateUpdate", async (oldState, newState) => {
     if (newState && oldState) {
-        //newState関係
-        console.log(`NEW:userid   : ${newState.id}`);       //ユーザID
-        console.log(`NEW:channelid: ${newState.channelID}`);//チャンネルID、nullならdisconnect
-        console.log(`NEW:guildid  : ${newState.guild.id}`); //ギルドID
 
-        //oldState関係
-        console.log(`OLD:userid   : ${oldState.id}`);       //ユーザID
-        console.log(`OLD:channelid: ${oldState.channelID}`);//チャンネルID、nullならconnect
-        console.log(`OLD:guildid  : ${oldState.guild.id}`); //ギルドID
-
-        if (oldState.channelID === newState.channelID) {
-            //ここはミュートなどの動作を行ったときに発火する場所
-            concole.log(`other`);
+        /*
+        if (oldState.channelId === newState.channelId) {
+            // ミュートなどの動作を行ったとき
+            console.log(`other`);
         }
-        if (oldState.channelID === null && newState.channelID != null) {
-            //ここはconnectしたときに発火する場所
-            concole.log(`connect`);
-        }
-    if (oldState.channelID != null && newState.channelID === null) {
-        //ここはdisconnectしたときに発火する場所
-        console.log(`disconnect`);
+        if (oldState.channelId === null && newState.channelId != null) {
+            // connectしたとき
+            console.log(`connect`);
+        }*/
+        if (oldState.channelId != null && newState.channelId === null) {
+            // disconnectしたとき
+            const channelName = oldState.guild.id + oldState.channel.name;
+            console.log(`disconnect: ` + channelName);
+            if (oldState.guild.id === TESTSERVER_GUILD_ID && vcShovelUsers[channelName]) {
+                const user = await oldState.guild.members.fetch(oldState.id);
+                if ((user.user.bot && user.displayName.includes('shovel')) || oldState.channel.members.size <= 1) { // shovelが抜けることが確定しているので、登録を解除するだけでいい
+                    console.log('delete shovel users array which are not used: ' + channelName);
+                    delete vcShovelUsers[channelName];
+                }
+                else {
+                    vcShovelUsers[channelName] = vcShovelUsers[channelName].filter(n => n !== oldState.id);
+                    if (vcShovelUsers[channelName].length <= 0) {
+                        console.log('Kick shovel as all users has left');
+                        delete vcShovelUsers[channelName];
+                        oldState.channel.members.find(m => {
+                            if (m.user.bot && m.user.username.includes('shovel'))
+                                m.voice.channel.leave(); // TODO どうやって抜けさせるんだっけ
+                        });
+                    }
+                }
+            }
         }
     }
 });
