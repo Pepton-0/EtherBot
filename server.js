@@ -74,7 +74,7 @@ client.on("ready", argClient => {
 
 client.on('messageCreate', async msg => {
     if (msg.author.bot) return;
-    if (msg.guildId === TESTSERVER_GUILD_ID && msg.member.voice.channel && msg.channel.name.includes('vc')) { // TODO vcチャンネルかどうかの判断があまりに適当同じ階層に同じ名前のvcがあるかで確認したい
+    if (msg.member.voice.channel && msg.channel.name.includes('vc')) { // TODO vcチャンネルかどうかの判断があまりに適当同じ階層に同じ名前のvcがあるかで確認したい
         // Remind the author as shovel user if he uses it.
         // TODO vcの埋め込み型テキストチャンネルでも反応するようにしたい
         const urlPattern = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
@@ -349,7 +349,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
             // disconnectしたとき
             const channelName = oldState.guild.id + oldState.channel.name;
             console.log(`disconnect: ` + channelName);
-            if (oldState.guild.id === TESTSERVER_GUILD_ID && vcShovelUsers[channelName]) {
+            if (vcShovelUsers[channelName]) {
                 const user = await oldState.guild.members.fetch(oldState.id);
                 if ((user.user.bot && user.displayName.includes('shovel')) || oldState.channel.members.size <= 1) { // shovelが抜けることが確定しているので、登録を解除するだけでいい
                     console.log('delete shovel users array which are not used: ' + channelName);
@@ -360,9 +360,11 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
                     if (vcShovelUsers[channelName].length <= 0) {
                         console.log('Kick shovel as all users has left');
                         delete vcShovelUsers[channelName];
-                        oldState.channel.members.find(m => {
-                            if (m.user.bot && m.user.username.includes('shovel'))
-                                m.voice.channel.leave(); // TODO どうやって抜けさせるんだっけ
+                        oldState.channel.members.find(member => {
+                            if (member.user.bot && member.user.username.includes('shovel')) {
+                                oldState.channel.send(member.user.username + 'を自動的に切断させました');
+                                member.voice.disconnect();
+                            }
                         });
                     }
                 }
