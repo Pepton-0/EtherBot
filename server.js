@@ -10,6 +10,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
 const etherdb = require('./etherdb');
+const remotecmd = require('./remotecmd');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const NATSUMIKAN_ID = process.env.NATSUMIKAN_ID;
@@ -18,6 +19,9 @@ const MOGTAM_ID = process.env.MOGTAM_ID;
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
 const TESTSERVER_GUILD_ID = process.env.TESTSERVER_GUILD_ID;
+const YAMATO_HOST = process.env.YAMATO_HOST;
+const YAMATO_USERNAME = process.env.YAMATO_USERNAME;
+const YAMATO_PRIVATEKEY = process.env.YAMATO_PRIVATEKEY;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
@@ -70,6 +74,7 @@ client.on("ready", argClient => {
     console.log('On ready event');
     client.user.setActivity('Input slash / to view the command list', { type: 'PLAYING' });
     updateBannerCollection();
+    await remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
 });
 
 client.on('messageCreate', async msg => {
