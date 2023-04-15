@@ -74,7 +74,6 @@ client.on("ready", argClient => {
     console.log('On ready event');
     client.user.setActivity('Input slash / to view the command list', { type: 'PLAYING' });
     updateBannerCollection();
-    await remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
 });
 
 client.on('messageCreate', async msg => {
@@ -164,6 +163,10 @@ Didn\'t you mistake the minecraft server IP?`);
                     await client.guilds.cache.get(GUILD_ID).setBanner(url);
                 }
                 break;
+            case 'sshdebug':
+                if (msg.author.id === HAL_ID) {
+                    remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
+                }
         }
         return;
     }
