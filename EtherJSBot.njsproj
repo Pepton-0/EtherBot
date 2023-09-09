@@ -29,10 +29,10 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="GlitchActivator.js">
+    <Content Include="RenderActivator.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="HentaiCollection.js">
+    <Content Include="hentaicollection.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="package.json" />
@@ -43,7 +43,7 @@
     <Content Include="remotecmd.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="CommandInfo.js">
+    <Content Include="commandinfo.js">
       <SubType>Code</SubType>
     </Content>
   </ItemGroup>

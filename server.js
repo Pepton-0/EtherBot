@@ -8,7 +8,7 @@ const { Client, GatewayIntentBits, IntentsBitField, Channel } = require('discord
 const pinger = require('minecraft-server-ping');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const hentaiCollection = require('./HentaiCollection');
+const hentaiCollection = require('./hentaicollection');
 const remotecmd = require('./remotecmd');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -367,7 +367,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
 });
 
-const commandInfo = require('./CommandInfo');
+const commandInfo = require('./commandinfo');
 for (const info of commandInfo.data())
     commands.push(info.toJSON());
 const rest = new REST({ version: 9 }).setToken(BOT_TOKEN);
