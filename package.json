@@ -21,7 +21,7 @@
     "query-string": "^8.1.0"
   },
   "devDependencies": {
-    "eslint": "^8.38.0",
+    "eslint": "^8.49.0",
     "node-ssh": "^13.1.0"
   },
   "eslintConfig": {},
