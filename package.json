@@ -18,13 +18,13 @@
     "nekos.life": "^3.0.0",
     "node-fetch-commonjs": "^3.2.4",
     "npm-check-updates": "^16.13.3",
-    "query-string": "^8.1.0"
+    "query-string": "^8.1.0",
+    "node-ssh": "^13.1.0"
   },
   "devDependencies": {
     "@types/eslint": "^8.44.2",
     "@types/express": "^4.17.17",
-    "eslint": "^8.49.0",
-    "node-ssh": "^13.1.0"
+    "eslint": "^8.49.0"
   },
   "eslintConfig": {},
   "engines": {
