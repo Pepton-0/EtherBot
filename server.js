@@ -278,6 +278,11 @@ client.on('interactionCreate', async interaction => {
             else
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
             break;
+        case 'mcserver':
+            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
+                await interaction.reply('tmp success');
+            }
+            break;
         case 'natsumikan':
         case 'n':
             sendMention(NATSUMIKAN_ID, interaction.options.getString('m'), (message) => interaction.reply(message));

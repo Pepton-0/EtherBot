@@ -29,9 +29,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="etherdb.js">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="GlitchActivator.js">
       <SubType>Code</SubType>
     </Content>

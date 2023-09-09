@@ -9,6 +9,11 @@ module.exports.data = () => {
         new SlashCommandBuilder()
             .setName('changebanner')
             .setDescription('Select a random server banner in banner channel. You can use this only in banner channel'),
+        new SlashCommandBuilder()
+            .setName('mcserver')
+            .setDescription('Send commands to mc server')
+            .addStringOption(option =>
+                option.setName('cmd').setDescription('The command you want to send')),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),
