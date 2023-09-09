@@ -4,9 +4,9 @@ const connection = new NodeSSH();
 let isConnected = false;
 
 // connect to yamato's server
-module.exports.connect = internalConnect(host, username, privateKey);
+module.exports.connect = async(host, username, privateKey) => internalConnect(host, username, privateKey);
 
-module.exports.inject = internalInject(command);
+module.exports.inject = async(command) => internalInject(command);
 
 async function internalConnect(host, username, privateKey) {
     if (connected)
