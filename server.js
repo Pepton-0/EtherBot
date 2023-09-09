@@ -279,11 +279,11 @@ client.on('interactionCreate', async interaction => {
             break;
         case 'mcserver':
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && interaction.channelId === MC_SERVER_ID) {
-                if (interaction.options.getSubCommand() === 'start') {
+                if (interaction.options.getSubcommand() === 'start') {
                     let result = await remotecmd.inject(CMD_MCSTART);
                     await interaction.reply(result);
                 }
-                else if (interaction.options.getSubCommand() == 'cmd' && interaction.user.id === HAL_ID) {
+                else if (interaction.options.getSubcommand() == 'cmd' && interaction.user.id === HAL_ID) {
                     let result = await remotecmd.inject(interaction.options.getString('c', true))
                     await interaction.reply(result);
                 }
