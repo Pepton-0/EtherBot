@@ -32,7 +32,7 @@ async function internalInject(command) {
         return;
     }
     console.log('Injecting command:' + command);
-    command.execCommand(command, { options: { pty: true } }).then((result) => {
+    connection.execCommand(command, { options: { pty: true } }).then((result) => {
         console.log('stdout:' + result.stdout);
         console.log('stderr:' + result.stderr);
         console.log('signal:' + result.signal);
