@@ -12,10 +12,10 @@ module.exports.data = () => {
         new SlashCommandBuilder()
             .setName('mcserver')
             .setDescription('Send commands to mc server')
-            .addSubCommand(sub =>
+            .addSubcommand(sub =>
                     sub.setName('start')
                     .setDescription('Start mc server via tmux'))
-            .addSubCommand(sub =>
+            .addSubcommand(sub =>
                     sub.setName('cmd')
                     .setDescription('Input any command')
                     .addStringOption(option =>

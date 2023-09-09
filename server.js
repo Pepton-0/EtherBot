@@ -26,6 +26,7 @@ const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
 const AFK_CHANNEL_ID = '974999731317141534';
+const MC_SERVER_ID = '1150066815142219776';
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
 const commands = [];
 let bannerCollection = [];
@@ -277,12 +278,12 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
             break;
         case 'mcserver':
-            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
+            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && interaction.channelId === MC_SERVER_ID) {
                 if (interaction.options.getSubCommand() === 'start') {
                     let result = await remotecmd.inject(CMD_MCSTART);
                     await interaction.reply(result);
                 }
-                else if (interaction.options.getSubCommand() == 'cmd') {
+                else if (interaction.options.getSubCommand() == 'cmd' && interaction.user.id === HAL_ID) {
                     let result = await remotecmd.inject(interaction.options.getString('c', true))
                     await interaction.reply(result);
                 }
