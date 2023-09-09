@@ -1,8 +1,16 @@
 const { NodeSSH } = require('node-ssh');
+const { connected } = require('process');
 const connection = new NodeSSH();
+let isConnected = false;
 
 // connect to yamato's server
-module.exports.connect = async (host, username, privateKey) => {
+module.exports.connect = internalConnect(host, username, privateKey);
+
+module.exports.inject = internalInject(command);
+
+async function internalConnect(host, username, privateKey) {
+    if (connected)
+        conenction.dispose();
     console.log('Start connecting to yamato\'s server...');
     await connection.connect({
         host: host,
@@ -14,6 +22,21 @@ module.exports.connect = async (host, username, privateKey) => {
         console.log('stderr:' + result.stderr);
         console.log('signal:' + result.signal);
     });
-    connection.dispose();
     console.log('All ssh tasks should have been completed.');
+    connected = true;
+}
+
+async function internalInject(command) {
+    if (!connection) {
+        console.error("Tried to connect ssh server without preparation!");
+        return;
+    }
+    console.log('Injecting command:' + command);
+    command.execCommand(command, { options: { pty: true } }).then((result) => {
+        console.log('stdout:' + result.stdout);
+        console.log('stderr:' + result.stderr);
+        console.log('signal:' + result.signal);
+
+        return '```' + result.stdout + '```' + '\n```' + result.stderr + '```' + '\n```' + result.signal + '```';
+    });
 }

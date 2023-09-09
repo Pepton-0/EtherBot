@@ -21,6 +21,7 @@ const TESTSERVER_GUILD_ID = process.env.TESTSERVER_GUILD_ID;
 const YAMATO_HOST = process.env.YAMATO_HOST;
 const YAMATO_USERNAME = process.env.YAMATO_USERNAME;
 const YAMATO_PRIVATEKEY = process.env.YAMATO_PRIVATEKEY;
+const CMD_MCSTART = process.env.CMD_MCSTART;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
@@ -73,6 +74,7 @@ client.on("ready", argClient => {
     console.log('On ready event');
     client.user.setActivity('Input slash / to view the command list', { type: 'PLAYING' });
     updateBannerCollection();
+    remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
 });
 
 client.on('messageCreate', async msg => {
@@ -156,10 +158,6 @@ Didn\'t you mistake the minecraft server IP?`);
                     await client.guilds.cache.get(GUILD_ID).setBanner(url);
                 }
                 break;
-            case 'sshdebug':
-                if (msg.author.id === HAL_ID) {
-                    remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
-                }
         }
         return;
     }
@@ -227,7 +225,7 @@ Didn\'t you mistake the minecraft server IP?`);
 });
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand())
+    if (!interaction.isChatInputCommand())
         return;
     if (interaction.user.bot)
         return;
@@ -280,7 +278,20 @@ client.on('interactionCreate', async interaction => {
             break;
         case 'mcserver':
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
-                await interaction.reply('tmp success');
+                if (interaction.options.getSubCommand() === 'start') {
+                    let result = await remotecmd.inject(CMD_MCSTART);
+                    await interaction.reply(result);
+                }
+                else if (interaction.options.getSubCommand() == 'cmd') {
+                    let result = await remotecmd.inject(interaction.options.getString('c', true))
+                    await interaction.reply(result);
+                }
+                else {
+                    await interaction.reply('Nothing Happened');
+                }
+            }
+            else {
+                interaction.reply('You are not allowed to use this command');
             }
             break;
         case 'natsumikan':

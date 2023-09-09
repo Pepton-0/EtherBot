@@ -12,8 +12,16 @@ module.exports.data = () => {
         new SlashCommandBuilder()
             .setName('mcserver')
             .setDescription('Send commands to mc server')
-            .addStringOption(option =>
-                option.setName('cmd').setDescription('The command you want to send')),
+            .addSubCommand(sub =>
+                    sub.setName('start')
+                    .setDescription('Start mc server via tmux'))
+            .addSubCommand(sub =>
+                    sub.setName('cmd')
+                    .setDescription('Input any command')
+                    .addStringOption(option =>
+                        option.setName('c')
+                        .setDescription('Command')
+                    )),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),
