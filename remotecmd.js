@@ -27,9 +27,9 @@ async function internalConnect(host, username, privateKey) {
 }
 
 async function internalInject(command) {
-    if (!connection) {
+    if (!isConnected) {
         console.error("Tried to connect ssh server without preparation!");
-        return;
+        return "Tried to connect ssh server without preparation!";
     }
     console.log('Injecting command:' + command);
     connection.execCommand(command, { options: { pty: true } }).then((result) => {
