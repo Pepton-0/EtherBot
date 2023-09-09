@@ -23,7 +23,7 @@ async function internalConnect(host, username, privateKey) {
         console.log('signal:' + result.signal);
     });
     console.log('All ssh tasks should have been completed.');
-    connected = true;
+    isConnected = true;
 }
 
 async function internalInject(command) {
