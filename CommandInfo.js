@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const hentaiCollection = require('./HentaiCollection');
-const etherdb = require('./etherdb');
 
 module.exports.data = () => {
     const commandList = [
@@ -18,8 +17,6 @@ module.exports.data = () => {
         buildMentionCommand('m', 'admin Mogtam'),
     ];
     for (const command of hentaiCollection.getHentaiCommands())
-        commandList.push(command);
-    for (const command of etherdb.getDbCommands())
         commandList.push(command);
     return commandList;
 };
