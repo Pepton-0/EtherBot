@@ -9,7 +9,6 @@ const pinger = require('minecraft-server-ping');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const hentaiCollection = require('./HentaiCollection');
-const etherdb = require('./etherdb');
 const remotecmd = require('./remotecmd');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -149,12 +148,6 @@ Didn\'t you mistake the minecraft server IP?`);
                     msg.channel.send('command request');
                     hentaiCollection.sendAll();
                 }
-                break;
-            case 'dbdebug':
-                if (await permissionCheck(msg.guild.members.cache.get(msg.author.id), true))
-                    etherdb.debug(msg.guildId, 'any');
-                else
-                    msg.channel.send('Not allowed to execute this command!');
                 break;
             case 'setbanner':
                 if (msg.author.id === HAL_ID) {
@@ -296,18 +289,6 @@ client.on('interactionCreate', async interaction => {
         case 'mogtam':
         case 'm':
             sendMention(MOGTAM_ID, interaction.options.getString('m'), (message) => interaction.reply(message));
-            break;
-        case 'resetdatabase':
-            if (!(await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true))) {
-                await interaction.reply('You are not allowed!');
-            }
-            else {
-                etherdb.resetDatabase(interaction.guildId);
-
-                interaction.channel.send('Reset all the settings and data for me!');
-                await interaction.reply('success');
-                await interaction.deleteReply();
-            }
             break;
         case 'setproperty':
             if (!(await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true))) {
