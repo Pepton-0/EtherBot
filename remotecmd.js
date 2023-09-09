@@ -7,7 +7,7 @@ module.exports.connect = async (host, username, privateKey) => {
     await connection.connect({
         host: host,
         username: username,
-        privateKey: Buffer.from(privateKey)
+        privateKey: privateKey
     });
     await connection.execCommand('ls', { options: { pty: true } }).then((result) => {
         console.log('stdout:' + result.stdout);
