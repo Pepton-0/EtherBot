@@ -35,11 +35,13 @@ async function internalInject(command) {
         return "Tried to connect ssh server without preparation!";
     }
     console.log('Injecting command:' + command);
-    connection.execCommand(command, { options: { pty: true } }).then((result) => {
+    let result = "";
+    await connection.execCommand(command, { options: { pty: true } }).then((result) => {
         console.log('stdout:' + result.stdout);
         console.log('stderr:' + result.stderr);
         console.log('signal:' + result.signal);
 
-        return '```' + result.stdout + '```' + '\n```' + result.stderr + '```' + '\n```' + result.signal + '```';
+        result = '```' + result.stdout + '```' + '\n```' + result.stderr + '```' + '\n```' + result.signal + '```';
     });
+    return result;
 }
