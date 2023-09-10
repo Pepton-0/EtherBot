@@ -287,7 +287,11 @@ client.on('interactionCreate', async interaction => {
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
                     if (!(result && result.length >=1))
                         reuslt = "No response";
-                    let title = result.length > 4000 ? '> Result: Too Long Response' : '> Result:';
+                    let title = '> Result:';
+                    if (result.length > 4000) {
+                        title += ' Too long so cutted';
+                        result = result.substring(0, 4000);
+                    }
                     await interaction.reply(title);
                     interaction.channel.send(result);
                 }
