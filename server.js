@@ -281,11 +281,14 @@ client.on('interactionCreate', async interaction => {
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && (interaction.channelId === MC_SERVER_ID || interaction.guild.id === TESTSERVER_GUILD_ID)) {
                 if (interaction.options.getSubcommand() === 'start') {
                     let result = await remotecmd.inject(CMD_MCSTART);
-                    await interaction.reply(result);
+                    await interaction.reply('Requsted start command');
                 }
                 else if (interaction.options.getSubcommand() == 'cmd' && interaction.user.id === HAL_ID) {
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
-                    await interaction.reply('success');
+                    if (!(result && result.length >=1))
+                        reuslt = "No response";
+                    let title = result.length > 4000 ? '> Result: Too Long Response' : '> Result:';
+                    await interaction.reply(title);
                     interaction.channel.send(result);
                 }
                 else {

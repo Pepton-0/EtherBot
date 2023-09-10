@@ -33,7 +33,9 @@ async function internalInject(command) {
     }
     console.log('Injecting command:' + command);
     let result = await connection.execCommand(command, { options: { pty: true } });
-    let str = '```' + (result.stdout ?? 'none') + '```';
+    let str = '';
+    if (result.stdout && stdout.length >= 1)
+        str += '```' + stdout + '```';
     if (result.stderr && stderr.length >= 1)
         str += '```' + stderr + '```';
     if (result.signal && signal.length >= 1)
