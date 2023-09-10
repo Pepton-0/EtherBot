@@ -289,7 +289,7 @@ client.on('interactionCreate', async interaction => {
                         reuslt = "No response";
                     let title = '> Result:';
                     if (result.length > 4000) {
-                        title += ' Too long so cutted';
+                        title = '> Result:Too long so cutted';
                         result = result.substring(0, 4000);
                     }
                     await interaction.reply(title);
