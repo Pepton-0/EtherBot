@@ -285,7 +285,8 @@ client.on('interactionCreate', async interaction => {
                 }
                 else if (interaction.options.getSubcommand() == 'cmd' && interaction.user.id === HAL_ID) {
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
-                    await interaction.reply(result);
+                    await interaction.reply('success');
+                    interaction.channel.send(result);
                 }
                 else {
                     await interaction.reply('Nothing Happened');
