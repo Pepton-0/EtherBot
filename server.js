@@ -288,15 +288,15 @@ client.on('interactionCreate', async interaction => {
                     if (!(result && result.length >=1))
                         reuslt = "No response";
                     let title = '> Result:';
-                    if (result.length > 4000) {
+                    if (result.length > 1000) {
                         title = '> Result:Too long so cutted';
-                        result = result.substring(0, 4000);
+                        result = result.substring(0, 1000);
                     }
                     await interaction.reply(title);
                     interaction.channel.send(result);
                 }
                 else {
-                    await interaction.reply('Nothing Happened');
+                    await interaction.reply('Nothing happened');
                 }
             }
             else {
