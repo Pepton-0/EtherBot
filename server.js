@@ -75,7 +75,8 @@ http.createServer((req, res) => {
     }
 }).listen(3000);
 */
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { res.status(200).send("Demo!!!"); });
+app.post("/", (req, res) => {
     if (req.method == 'POST') {
         let data = '';
         req.on('data', (chunk) => {
