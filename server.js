@@ -278,7 +278,7 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
             break;
         case 'mcserver':
-            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && interaction.channelId === MC_SERVER_ID) {
+            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && (interaction.channelId === MC_SERVER_ID || interaction.guild.id === TESTSERVER_GUILD_ID)) {
                 if (interaction.options.getSubcommand() === 'start') {
                     let result = await remotecmd.inject(CMD_MCSTART);
                     await interaction.reply(result);
