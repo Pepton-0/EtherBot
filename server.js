@@ -104,8 +104,7 @@ app.get("/", (req, res) => {
         });
     }
     else if (req.method == 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Discord Bot is active now\n');
+        res.status(200).send("Express!!");
     }
 });
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
