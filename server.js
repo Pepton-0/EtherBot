@@ -2,7 +2,8 @@
 // git commit -m "message"
 // git push origin main
 
-const http = require('http');
+// const http = require('http');
+const express = require('express');
 const querystring = require('querystring');
 const { Client, GatewayIntentBits, IntentsBitField, Channel } = require('discord.js');
 const pinger = require('minecraft-server-ping');
@@ -28,6 +29,8 @@ const BANNER_CHANNEL_ID = '976506255092875335';
 const AFK_CHANNEL_ID = '974999731317141534';
 const MC_SERVER_ID = '1150066815142219776';
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
+const app = express();
+const expressPort = process.env.PORT || 3001;
 const commands = [];
 let bannerCollection = [];
 const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:',
@@ -37,6 +40,7 @@ const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:'
 const vcShovelUsers = []; // = new string[guildId+channel.name][author.id]
 
 // Glitch上で動かすとき一定時間経過でスリープする仕様がある。これを阻止するため、Google Apps Scriptから強制的にたたき起こす
+/*
 http.createServer((req, res) => {
     if (req.method == 'POST') {
         let data = '';
@@ -70,6 +74,41 @@ http.createServer((req, res) => {
         res.end('Discord Bot is active now\n');
     }
 }).listen(3000);
+*/
+app.get("/", (req, res) => {
+    if (req.method == 'POST') {
+        let data = '';
+        req.on('data', (chunk) => {
+            data += chunk;
+        });
+        req.on('end', () => {
+            if (data == null) {
+                console.log('No post data');
+                res.end();
+                return;
+            }
+            const dataObject = querystring.parse(data);
+            console.log(`post: ${dataObject.type}`);
+            if (dataObject.type == 'wake') {
+                console.log('Woke up in post');
+                res.end();
+                return;
+            }
+            if (dataObject.type == 'daychange') {
+                console.log('Day has changed');
+                updateBannerCollection().then(() => { setRandomBanner(null); });
+                res.end();
+                return;
+            }
+            res.end();
+        });
+    }
+    else if (req.method == 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Discord Bot is active now\n');
+    }
+});
+const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
 
 client.on("ready", argClient => {
     console.log('On ready event');
@@ -278,7 +317,7 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
             break;
         case 'mcserver':
-            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true) && (interaction.channelId === MC_SERVER_ID || interaction.guild.id === TESTSERVER_GUILD_ID)) {
+            if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
                 if (interaction.options.getSubcommand() === 'start') {
                     let result = await remotecmd.inject(CMD_MCSTART);
                     await interaction.reply('Requsted start command');
