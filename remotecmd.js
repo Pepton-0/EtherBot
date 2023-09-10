@@ -35,11 +35,11 @@ async function internalInject(command) {
     let result = await connection.execCommand(command, { options: { pty: true } });
     let str = '';
     if (result.stdout && result.stdout.length >= 1)
-        str += '```' + stdout + '```';
+        str += '```' + result.stdout + '```';
     if (result.stderr && result.stderr.length >= 1)
-        str += '```' + stderr + '```';
+        str += '```' + result.stderr + '```';
     if (result.signal && result.signal.length >= 1)
-        str += '```' + signal + '```';
+        str += '```' + result.signal + '```';
     console.log(str);
     return str;
 }
