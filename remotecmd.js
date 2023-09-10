@@ -40,5 +40,6 @@ async function internalInject(command) {
 
         result = '```' + result.stdout + '```' + '\n```' + result.stderr + '```' + '\n```' + result.signal + '```';
     });
+    console.log(result);
     return result;
 }
