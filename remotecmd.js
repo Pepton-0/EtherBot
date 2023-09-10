@@ -1,5 +1,5 @@
 const { NodeSSH } = require('node-ssh');
-const { connected } = require('process');
+const { connected, stderr } = require('process');
 const connection = new NodeSSH();
 let isConnected = false;
 
@@ -33,7 +33,11 @@ async function internalInject(command) {
     }
     console.log('Injecting command:' + command);
     let result = await connection.execCommand(command, { options: { pty: true } });
-    let str = result = '```' + result.stdout + '```' + '\n```' + result.stderr + '```' + '\n```' + result.signal + '```';
+    let str = '```' + (result.stdout ?? 'none') + '```';
+    if (result.stderr && stderr.length >= 1)
+        str += '```' + stderr + '```';
+    if (result.signal && signal.length >= 1)
+        str += '```' + signal + '```';
     console.log(str);
     return str;
 }
