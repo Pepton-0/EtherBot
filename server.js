@@ -95,7 +95,6 @@ app.post("/", (req, res) => {
             if (data.indexOf(expressPassword) == 0) {
                 // This is a log update of mc server
                 let log = data.substring(expressPassword.length);
-                log = log.length > 1500 ? log.substring(0, 1500)+ "...TOO LONG CONSOLE..." : log;
                 // const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
                 if (log.length >= 1) {
                     const channel = client.guilds.cache.get(TESTSERVER_GUILD_ID).channels.cache.get("954734232125714465");
