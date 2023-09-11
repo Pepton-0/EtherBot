@@ -23,6 +23,7 @@ const YAMATO_HOST = process.env.YAMATO_HOST;
 const YAMATO_USERNAME = process.env.YAMATO_USERNAME;
 const YAMATO_PRIVATEKEY = process.env.YAMATO_PRIVATEKEY;
 const CMD_MCSTART = process.env.CMD_MCSTART;
+const EXPRESS_PASSWORD = process.env.EXPRESS_PASSWORD;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
@@ -89,7 +90,7 @@ app.post("/", (req, res) => {
                 return;
             }
             const dataObject = querystring.parse(data);
-            console.log(`post: ${dataObject.type}`);
+            console.log(`POST: ${dataObject.type}`);
             if (dataObject.type === 'wake') {
                 console.log('Woke up in post');
                 res.end();
@@ -101,7 +102,7 @@ app.post("/", (req, res) => {
                 res.end();
                 return;
             }
-            if (dataObject.type === 'logupdate') {
+            if (dataObject.type === 'logupdate' && dataObject.password === EXPRESS_PASSWORD) {
                 let logUpdate = dataObject.logUpdate ?? '';
                 if (logUpdate.length >= 1) {
                     console.log('Log Update: ' + logUpdate.length);
