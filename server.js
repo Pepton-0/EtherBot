@@ -2,7 +2,6 @@
 // git commit -m "message"
 // git push origin main
 
-// const http = require('http');
 const express = require('express');
 const querystring = require('querystring');
 const { Client, GatewayIntentBits, IntentsBitField, Channel } = require('discord.js');
@@ -33,6 +32,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const app = express();
 const expressPort = process.env.PORT || 3001;
 const commands = [];
+let mcServerChannel;
 let bannerCollection = [];
 const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:',
     'サイレンス完了:regional_indicator_s:', '警告完了:regional_indicator_w:',
@@ -40,42 +40,6 @@ const punishments = ['対応不可 :regional_indicator_r::regional_indicator_j:'
     , '確認中:regional_indicator_c:', 'BAN完了:regional_indicator_c:'];
 const vcShovelUsers = []; // = new string[guildId+channel.name][author.id]
 
-// Glitch上で動かすとき一定時間経過でスリープする仕様がある。これを阻止するため、Google Apps Scriptから強制的にたたき起こす
-/*
-http.createServer((req, res) => {
-    if (req.method == 'POST') {
-        let data = '';
-        req.on('data', (chunk) => {
-            data += chunk;
-        });
-        req.on('end', () => {
-            if (data == null) {
-                console.log('No post data');
-                res.end();
-                return;
-            }
-            const dataObject = querystring.parse(data);
-            console.log(`post: ${dataObject.type}`);
-            if (dataObject.type == 'wake') {
-                console.log('Woke up in post');
-                res.end();
-                return;
-            }
-            if (dataObject.type == 'daychange') {
-                console.log('Day has changed');
-                updateBannerCollection().then(() => { setRandomBanner(null); });
-                res.end();
-                return;
-            }
-            res.end();
-        });
-    }
-    else if (req.method == 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Discord Bot is active now\n');
-    }
-}).listen(3000);
-*/
 app.get("/", (req, res) => { res.status(200).send("Demo!!!"); });
 app.post("/", (req, res) => {
     if (req.method == 'POST') {
@@ -89,17 +53,16 @@ app.post("/", (req, res) => {
                 res.end();
                 return;
             }
-            console.log("raw data: " + data);
+            // console.log("raw data: " + data);
             const expressPassword = `password=${EXPRESS_PASSWORD}&logUpdate=`;
-            console.log("password: " + expressPassword);
+            // console.log("password: " + expressPassword);
             if (data.indexOf(expressPassword) == 0) {
                 // This is a log update of mc server
                 let log = data.substring(expressPassword.length);
                 
                 if (log.length >= 1) {
                     // const channel = client.guilds.cache.get(TESTSERVER_GUILD_ID).channels.cache.get("954734232125714465");
-                    const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
-                    channel.send(log);
+                    mcServerChannel.send(log);
                 }
                 res.end();
                 return;
@@ -125,6 +88,7 @@ client.on("ready", argClient => {
     console.log('On ready event');
     client.user.setActivity('Input slash / to view the command list', { type: 'PLAYING' });
     updateBannerCollection();
+    mcServerChannel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
     remotecmd.connect(YAMATO_HOST, YAMATO_USERNAME, YAMATO_PRIVATEKEY);
 });
 
