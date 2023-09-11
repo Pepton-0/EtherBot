@@ -23,6 +23,7 @@ const YAMATO_USERNAME = process.env.YAMATO_USERNAME;
 const YAMATO_PRIVATEKEY = process.env.YAMATO_PRIVATEKEY;
 const CMD_MCSTART = process.env.CMD_MCSTART;
 const EXPRESS_PASSWORD = process.env.EXPRESS_PASSWORD;
+const TMUX_ID = process.env.TMUX_ID;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
@@ -298,7 +299,7 @@ client.on('interactionCreate', async interaction => {
                     let result = await remotecmd.inject(CMD_MCSTART);
                     await interaction.reply('Requsted start command');
                 }
-                else if (interaction.options.getSubcommand() == 'cmd' && interaction.user.id === HAL_ID) {
+                else if (interaction.options.getSubcommand() === 'cmd' && interaction.user.id === HAL_ID) {
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
                     if (!(result && result.length >=1))
                         reuslt = "No response";
@@ -309,6 +310,10 @@ client.on('interactionCreate', async interaction => {
                     }
                     await interaction.reply(title);
                     interaction.channel.send(result);
+                }
+                else if (interaction.options.getSubcommand() === 'tmux' && interaction.user.id === HAL_ID) {
+                    let result = await remotecmd.inject(`tmux send-keys -t ${TMUX_ID} "${interaction.option.getString('c', true)}" ENTER`);
+                    await interaction.reply('Requested tmux command');
                 }
                 else {
                     await interaction.reply('Nothing happened');

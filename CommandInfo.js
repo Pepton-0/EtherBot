@@ -20,8 +20,13 @@ module.exports.data = () => {
                     .setDescription('Input any command')
                     .addStringOption(option =>
                         option.setName('c')
-                        .setDescription('Command')
-                    )),
+                            .setDescription('Command')))
+            .addSubcommand(sub => 
+                sub.setName('tmux')
+                    .setDescription('Input command which is inserted in tmux')
+                    .addStringOption(option =>
+                        option.setName('c')
+                        .setDescription('Command'))),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),
