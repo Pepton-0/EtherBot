@@ -91,7 +91,8 @@ app.post("/", (req, res) => {
             }
             console.log("raw data: " + data);
             const expressPassword = `password=${EXPRESS_PASSWORD}&logUpdate=`;
-            if (data.indexOf(expressPassword) >= 0) {
+            console.log("password: " + expressPassword);
+            if (data.indexOf(expressPassword) == 0) {
                 // This is a log update of mc server
                 const log = data.substring(expressPassword.length, data.length - expressPassword.length) ?? '';
                 console.log("log update: "+(log.length > 100 ? log.substring(0, 100) + "......" : log));
