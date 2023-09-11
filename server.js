@@ -90,7 +90,7 @@ app.post("/", (req, res) => {
                 return;
             }
             const dataObject = querystring.parse(data);
-            console.log(`POST: ${dataObject.type}`);
+            console.log(`POST: ${JSON.stringify(dataObject)}`);
             if (dataObject.type === 'wake') {
                 console.log('Woke up in post');
                 res.end();
@@ -114,9 +114,6 @@ app.post("/", (req, res) => {
             }
             res.end();
         });
-    }
-    else if (req.method == 'GET') {
-        res.status(200).send("Express!!");
     }
 });
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
