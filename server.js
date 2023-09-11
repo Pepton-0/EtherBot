@@ -117,6 +117,7 @@ app.post("/", (req, res) => {
     }
 });
 app.put("/" + EXPRESS_PASSWORD, (req, res) => {
+    let data = '';
     req.on('data', (chunk) => {
         data += chunk;
     });
