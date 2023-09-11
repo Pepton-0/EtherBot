@@ -62,7 +62,8 @@ app.post("/", (req, res) => {
                 
                 if (log.length >= 1) {
                     // const channel = client.guilds.cache.get(TESTSERVER_GUILD_ID).channels.cache.get("954734232125714465");
-                    mcServerChannel.send(log);
+                    if (mcServerChannel)
+                        mcServerChannel.send(log);
                 }
                 res.end();
                 return;
