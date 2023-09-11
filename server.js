@@ -107,14 +107,11 @@ app.post("/", (req, res) => {
                 // This is a generic post with URL query
                 const dataObject = querystring.parse(data);
                 console.log(`post: ` + dataObject.type);
-                switch (dataObject.type) {
-                    case 'wake':
-                        console.log('Woke up in post');
-                        break;
-                    case 'daychange':
-                        console.log('Day has changed');
-                        updateBannerCollection().then(() => { setRandomBanner(null); });
-                        break;
+                if (dataObject.type === 'wake') {
+                    console.log('Woke up in post');
+                } else if (dataObject.type == 'daychange') {
+                    console.log('Day has changed');
+                    updateBannerCollection().then(() => { setRandomBanner(null); });
                 }
                 res.end();
                 return;
