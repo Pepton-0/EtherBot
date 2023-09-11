@@ -115,19 +115,19 @@ app.post("/", (req, res) => {
             res.end();
         });
     }
-    if (req.method === 'UPDATE') {
-        req.on('data', (chunk) => {
-            data += chunk;
-        });
-        let logUpdate = data ?? '';
-        if (logUpdate.length >= 1) {
-            console.log('Log Update: ' + logUpdate.length);
-            const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
-            channel.send(logUpdate);
-        }
-        res.end();
-        return;
+});
+app.put("/" + EXPRESS_PASSWORD, (req, res) => {
+    req.on('data', (chunk) => {
+        data += chunk;
+    });
+    let logUpdate = data ?? '';
+    if (logUpdate.length >= 1) {
+        console.log('Log Update: ' + logUpdate.length);
+        const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
+        channel.send(logUpdate);
     }
+    res.end();
+    return;
 });
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
 
