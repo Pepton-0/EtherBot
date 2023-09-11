@@ -84,35 +84,35 @@ app.post("/", (req, res) => {
             data += chunk;
         });
         req.on('end', () => {
-            if (data == null) {
+            if (!data) {
                 console.log('No post data');
                 res.end();
                 return;
             }
-            const dataObject = querystring.parse(data);
-            console.log(`post: `+ data);
-            if (dataObject.type === 'wake') {
-                console.log('Woke up in post');
+            const expressPassword = `password=${EXPRESS_PASSWORD}&logUpdate=`;
+            if (data.indexOf(expressPassword) >= 0) {
+                // This is a log update of mc server
+                const log = data.substring(expressPassword.length, data.length - expressPassword.length) ?? '';
+                const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
+                channel.send(log);
                 res.end();
                 return;
-            }
-            if (dataObject.type === 'daychange') {
-                console.log('Day has changed');
-                updateBannerCollection().then(() => { setRandomBanner(null); });
-                res.end();
-                return;
-            }
-            if (dataObject.type === 'logupdate' && dataObject.password === EXPRESS_PASSWORD) {
-                let logUpdate = dataObject.logUpdate ?? '';
-                if (logUpdate.length >= 1) {
-                    console.log('Log Update: ' + logUpdate.length);
-                    const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
-                    channel.send(logUpdate);
+            } else {
+                // This is a generic post with URL query
+                const dataObject = querystring.parse(data);
+                console.log(`post: ` + data);
+                switch (dataObject.type) {
+                    case 'wake':
+                        console.log('Woke up in post');
+                        break;
+                    case 'daychange':
+                        console.log('Day has changed');
+                        updateBannerCollection().then(() => { setRandomBanner(null); });
+                        break;
                 }
                 res.end();
                 return;
             }
-            res.end();
         });
     }
 });
