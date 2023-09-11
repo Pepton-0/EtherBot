@@ -93,6 +93,7 @@ app.post("/", (req, res) => {
             if (data.indexOf(expressPassword) >= 0) {
                 // This is a log update of mc server
                 const log = data.substring(expressPassword.length, data.length - expressPassword.length) ?? '';
+                console.log(log.length > 100 ? log.substring(0, 100) + "......" : log);
                 const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
                 channel.send(log);
                 res.end();
