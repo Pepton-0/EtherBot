@@ -90,7 +90,7 @@ app.post("/", (req, res) => {
                 return;
             }
             const dataObject = querystring.parse(data);
-            console.log(`post: ${dataObject.type}`);
+            console.log(`post: `+ data);
             if (dataObject.type === 'wake') {
                 console.log('Woke up in post');
                 res.end();
@@ -116,23 +116,6 @@ app.post("/", (req, res) => {
         });
     }
 });
-app.patch("/ImVeryHungry/", (req, res) => {
-    if (req.method === 'PATCH') {
-        let data = '';
-        req.on('data', (chunk) => { data += chunk });
-        req.on('end', () => {
-            if (!data) {
-                console.log('No patch data');
-                res.end();
-                return;
-            }
-            console.log('---patch data update---');
-            console.log(data);
-        });
-    }
-    res.end();
-});
-
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
 
 client.on("ready", argClient => {
