@@ -90,7 +90,7 @@ app.post("/", (req, res) => {
                 return;
             }
             const dataObject = querystring.parse(data);
-            console.log(`POST: ${JSON.stringify(dataObject)}`);
+            console.log(`post: ${dataObject.type}`);
             if (dataObject.type === 'wake') {
                 console.log('Woke up in post');
                 res.end();
@@ -101,7 +101,7 @@ app.post("/", (req, res) => {
                 updateBannerCollection().then(() => { setRandomBanner(null); });
                 res.end();
                 return;
-            }/*
+            }
             if (dataObject.type === 'logupdate' && dataObject.password === EXPRESS_PASSWORD) {
                 let logUpdate = dataObject.logUpdate ?? '';
                 if (logUpdate.length >= 1) {
@@ -111,24 +111,13 @@ app.post("/", (req, res) => {
                 }
                 res.end();
                 return;
-            }*/
+            }
             res.end();
         });
     }
-});
-app.put("/" + EXPRESS_PASSWORD, (req, res) => {
-    let data = '';
-    req.on('data', (chunk) => {
-        data += chunk;
-    });
-    let logUpdate = data ?? '';
-    if (logUpdate.length >= 1) {
-        console.log('Log Update: ' + logUpdate.length);
-        const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
-        channel.send(logUpdate);
+    else if (req.method == 'GET') {
+        res.status(200).send("Express!!");
     }
-    res.end();
-    return;
 });
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
 
