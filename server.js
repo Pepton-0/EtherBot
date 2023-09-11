@@ -115,10 +115,24 @@ app.post("/", (req, res) => {
             res.end();
         });
     }
-    else if (req.method == 'GET') {
-        res.status(200).send("Express!!");
-    }
 });
+app.patch("/ImVeryHungry/", (req, res) => {
+    if (req.method === 'PATCH') {
+        let data = '';
+        req.on('data', (chunk) => { data += chunk });
+        req.on('end', () => {
+            if (!data) {
+                console.log('No patch data');
+                res.end();
+                return;
+            }
+            console.log('---patch data update---');
+            console.log(data);
+        });
+    }
+    res.end();
+});
+
 const server = app.listen(expressPort, () => console.log(`Example app listening on port ${expressPort}!`));
 
 client.on("ready", argClient => {
