@@ -27,7 +27,7 @@ const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
 const AFK_CHANNEL_ID = '974999731317141534';
-const MC_SERVER_ID = '1150066815142219776';
+const MCSERVER_CHANNEL_ID = '1150066815142219776';
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
 const app = express();
 const expressPort = process.env.PORT || 3001;
@@ -90,14 +90,24 @@ app.post("/", (req, res) => {
             }
             const dataObject = querystring.parse(data);
             console.log(`post: ${dataObject.type}`);
-            if (dataObject.type == 'wake') {
+            if (dataObject.type === 'wake') {
                 console.log('Woke up in post');
                 res.end();
                 return;
             }
-            if (dataObject.type == 'daychange') {
+            if (dataObject.type === 'daychange') {
                 console.log('Day has changed');
                 updateBannerCollection().then(() => { setRandomBanner(null); });
+                res.end();
+                return;
+            }
+            if (dataObject.type === 'logupdate') {
+                let logUpdate = dataObject.logUpdate ?? '';
+                if (logUpdate.length >= 1) {
+                    console.log('Log Update: ' + logUpdate.length);
+                    const channel = client.guilds.cache.get(GUILD_ID).channels.cache.get(MCSERVER_CHANNEL_ID);
+                    channel.send(logUpdate);
+                }
                 res.end();
                 return;
             }
