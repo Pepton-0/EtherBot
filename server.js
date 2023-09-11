@@ -89,6 +89,7 @@ app.post("/", (req, res) => {
                 res.end();
                 return;
             }
+            console.log(data);
             const expressPassword = `password=${EXPRESS_PASSWORD}&logUpdate=`;
             if (data.indexOf(expressPassword) >= 0) {
                 // This is a log update of mc server
@@ -101,7 +102,7 @@ app.post("/", (req, res) => {
             } else {
                 // This is a generic post with URL query
                 const dataObject = querystring.parse(data);
-                console.log(`post: ` + data);
+                console.log(`post: ` + dataObject.type);
                 switch (dataObject.type) {
                     case 'wake':
                         console.log('Woke up in post');
