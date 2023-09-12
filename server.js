@@ -295,12 +295,12 @@ client.on('interactionCreate', async interaction => {
             break;
         case 'mcserver':
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
-                if (interaction.options.getSubcommand() === 'start') {
+                if (interaction.options.getSubcommand() === 'start') { // A shortcut to inject mc server start command
                     // let result = await remotecmd.inject(CMD_MCSTART);
                     await remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"'))
                     await interaction.reply('Requsted start command');
                 }
-                else if (interaction.options.getSubcommand() === 'cmd' && interaction.user.id === HAL_ID) {
+                else if (interaction.options.getSubcommand() === 'cmd' && interaction.user.id === HAL_ID) { // The way to inject normal linux commands
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
                     if (!(result && result.length >=1))
                         reuslt = "No response";
@@ -312,7 +312,7 @@ client.on('interactionCreate', async interaction => {
                     await interaction.reply(title);
                     interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
-                else if (interaction.options.getSubcommand() === 'tmux') {
+                else if (interaction.options.getSubcommand() === 'tmux') { // A shortcut to inject tmux command for minecraft server
                     let cmd = interaction.options.getString('c', true);
                     await remotecmd.inject(makeTmuxCommand(cmd));
                     await interaction.reply('Requested tmux command');
