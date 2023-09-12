@@ -318,6 +318,10 @@ client.on('interactionCreate', async interaction => {
                     await remotecmd.inject(makeTmuxCommand(cmd));
                     await interaction.reply('Requested tmux command');
                 }
+                else if (subcommand === 'stop') {
+                    await remotecmd.inject(makeTmuxCommand('stop'));
+                    await interaction.reply('Requested stop command');
+                }
                 else {
                     await interaction.reply('Nothing happened');
                 }
