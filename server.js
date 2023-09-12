@@ -313,7 +313,7 @@ client.on('interactionCreate', async interaction => {
                 }
                 else if (interaction.options.getSubcommand() === 'tmux' && interaction.user.id === HAL_ID) {
                     let cmd = interaction.options.getString('c', true);
-                    let result = await remotecmd.inject(`tmux send-keys -t ${TMUX_ID} "${cmd}" ENTER`);
+                    let result = await remotecmd.inject(`tmux send-keys -t ${TMUX_ID} ${cmd} ENTER`);
                     await interaction.reply('Requested tmux command');
                 }
                 else {
