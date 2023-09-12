@@ -309,7 +309,7 @@ client.on('interactionCreate', async interaction => {
                         result = result.substring(0, 1000);
                     }
                     await interaction.reply(title);
-                    interaction.channel.send(result);
+                    interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
                 else if (interaction.options.getSubcommand() === 'tmux' && interaction.user.id === HAL_ID) {
                     let cmd = interaction.options.getString('c', true);
