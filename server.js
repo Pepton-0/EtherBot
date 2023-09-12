@@ -296,7 +296,8 @@ client.on('interactionCreate', async interaction => {
         case 'mcserver':
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
                 if (interaction.options.getSubcommand() === 'start') {
-                    let result = await remotecmd.inject(CMD_MCSTART);
+                    // let result = await remotecmd.inject(CMD_MCSTART);
+                    await remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"'))
                     await interaction.reply('Requsted start command');
                 }
                 else if (interaction.options.getSubcommand() === 'cmd' && interaction.user.id === HAL_ID) {
@@ -313,7 +314,7 @@ client.on('interactionCreate', async interaction => {
                 }
                 else if (interaction.options.getSubcommand() === 'tmux' && interaction.user.id === HAL_ID) {
                     let cmd = interaction.options.getString('c', true);
-                    let result = await remotecmd.inject(`tmux send-keys -t ${TMUX_ID} ${cmd} ENTER`);
+                    await remotecmd.inject(makeTmuxCommand(cmd));
                     await interaction.reply('Requested tmux command');
                 }
                 else {
@@ -477,4 +478,8 @@ function setRandomBanner(channel) {
     const index = Math.floor(Math.random() * bannerCollection.length);
     guild.setBanner(bannerCollection[index]);
     console.log('Server banner has been changed to id:' + index);
+}
+
+function makeTmuxCommand(cmd) {
+    return `tmux send-keys -t ${TMUX_ID} ${cmd} ENTER`;
 }
