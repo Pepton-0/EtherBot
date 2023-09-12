@@ -29,7 +29,7 @@ module.exports.data = () => {
                             .setDescription('Command')))
             .addSubcommand(sub =>
                 sub.setName('stop')
-                    .addStringOption('Stop mc server via tmux')),
+                    .setDescription('Stop mc server via tmux')),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),
