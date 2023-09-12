@@ -312,7 +312,7 @@ client.on('interactionCreate', async interaction => {
                     await interaction.reply(title);
                     interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
-                else if (interaction.options.getSubcommand() === 'tmux' && interaction.user.id === HAL_ID) {
+                else if (interaction.options.getSubcommand() === 'tmux') {
                     let cmd = interaction.options.getString('c', true);
                     await remotecmd.inject(makeTmuxCommand(cmd));
                     await interaction.reply('Requested tmux command');
