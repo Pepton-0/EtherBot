@@ -298,12 +298,13 @@ client.on('interactionCreate', async interaction => {
                 const subcommand = interaction.options.getSubcommand();
                 if (subcommand === 'start') { // A shortcut to inject mc server start command
                     // let result = await remotecmd.inject(CMD_MCSTART);
-                    await remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"'))
+                    remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"'))
                     await interaction.reply('Requsted start command');
                 }
                 else if (subcommand === 'cmd' && interaction.user.id === HAL_ID) { // The way to inject normal linux commands
                     const order = interaction.options.getString('c', true);
-                    let result = remotecmd.inject(order);/*
+                    remotecmd.inject(order);
+                    /*
                     if (!(result && result.length >= 1))
                         result = "No response";
                     let title = '> Result:';
@@ -311,20 +312,20 @@ client.on('interactionCreate', async interaction => {
                         title = '> Result:Too long so cutted';
                         result = result.substring(0, 1000);
                     }*/
-                    await interaction.reply(order);
+                    await interaction.reply(`@${interaction.user.id} try executing: ${order}`);
                     //interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
                 else if (subcommand === 'tmux') { // A shortcut to inject tmux command for minecraft server
                     let cmd = interaction.options.getString('c', true);
-                    await remotecmd.inject(makeTmuxCommand(cmd));
+                    remotecmd.inject(makeTmuxCommand(cmd));
                     await interaction.reply('Requested tmux command');
                 }
                 else if (subcommand === 'stop') {
-                    await remotecmd.inject(makeTmuxCommand('stop'));
+                    remotecmd.inject(makeTmuxCommand('stop'));
                     await interaction.reply('Requested stop command');
                 }
                 else if (subcommand === 'palstart') {
-                    await remotecmd.inject(makeTmuxCommand('~/emu/palstart.sh'));
+                    remotecmd.inject(makeTmuxCommand('~/emu/palstart.sh'));
                     await interaction.reply('Requested pal server start command');
                 }
                 else {
