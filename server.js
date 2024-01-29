@@ -60,7 +60,7 @@ app.post("/", (req, res) => {
             if (data.indexOf(expressPassword) == 0) {
                 // This is a log update of mc server
                 let log = data.substring(expressPassword.length);
-                
+
                 if (log.length >= 1) {
                     // const channel = client.guilds.cache.get(TESTSERVER_GUILD_ID).channels.cache.get("954734232125714465");
                     if (mcServerChannel)
@@ -193,7 +193,7 @@ Didn\'t you mistake the minecraft server IP?`);
         return;
     }
 
-   
+
     // 同一絵文字を複数ユーザーが入力した場合、便乗して同じ絵文字を送る
     // 最新コメントで投稿された絵文字それぞれが、以前の別ユーザーの投稿でも2回使用されている場合に反応する
     const msgList = [];
@@ -303,7 +303,7 @@ client.on('interactionCreate', async interaction => {
                 }
                 else if (subcommand === 'cmd' && interaction.user.id === HAL_ID) { // The way to inject normal linux commands
                     let result = await remotecmd.inject(interaction.options.getString('c', true));
-                    if (!(result && result.length >=1))
+                    if (!(result && result.length >= 1))
                         reuslt = "No response";
                     let title = '> Result:';
                     if (result.length > 1000) {
@@ -321,6 +321,10 @@ client.on('interactionCreate', async interaction => {
                 else if (subcommand === 'stop') {
                     await remotecmd.inject(makeTmuxCommand('stop'));
                     await interaction.reply('Requested stop command');
+                }
+                else if (subcommand === 'palstart') {
+                    await remotecmd.inject(makeTmuxCommand('palstart'));
+                    await interaction.reply('Requested pal server start command');
                 }
                 else {
                     await interaction.reply('Nothing happened');
