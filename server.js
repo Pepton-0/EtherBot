@@ -293,7 +293,7 @@ client.on('interactionCreate', async interaction => {
             else
                 await interaction.reply('Oops, you can\'t see that in non nsfw channels!');
             break;
-        case 'mcserver':
+        case 'server':
             if (await permissionCheck(interaction.guild.members.cache.get(interaction.user.id), true)) {
                 const subcommand = interaction.options.getSubcommand();
                 if (subcommand === 'start') { // A shortcut to inject mc server start command
