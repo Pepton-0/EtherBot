@@ -23,7 +23,6 @@ const YAMATO_USERNAME = process.env.YAMATO_USERNAME;
 const YAMATO_PRIVATEKEY = process.env.YAMATO_PRIVATEKEY;
 const CMD_MCSTART = process.env.CMD_MCSTART;
 const EXPRESS_PASSWORD = process.env.EXPRESS_PASSWORD;
-const TMUX_ID = process.env.TMUX_ID;
 const RETRY_LIMIT = 2;
 const PREFIX = "/";
 const BANNER_CHANNEL_ID = '976506255092875335';
@@ -298,7 +297,7 @@ client.on('interactionCreate', async interaction => {
                 const subcommand = interaction.options.getSubcommand();
                 if (subcommand === 'start') { // A shortcut to inject mc server start command
                     // let result = await remotecmd.inject(CMD_MCSTART);
-                    remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"'))
+                    remotecmd.inject(makeTmuxCommand('\"bash /home/opc/greg1.12.2/run.sh\"', 'mc'))
                     await interaction.reply('Requsted start command');
                 }
                 else if (subcommand === 'cmd' && interaction.user.id === HAL_ID) { // The way to inject normal linux commands
@@ -317,15 +316,15 @@ client.on('interactionCreate', async interaction => {
                 }
                 else if (subcommand === 'tmux') { // A shortcut to inject tmux command for minecraft server
                     let cmd = interaction.options.getString('c', true);
-                    remotecmd.inject(makeTmuxCommand(cmd));
+                    remotecmd.inject(makeTmuxCommand(cmd, 'mc'));
                     await interaction.reply('Requested tmux command');
                 }
                 else if (subcommand === 'stop') {
-                    remotecmd.inject(makeTmuxCommand('stop'));
+                    remotecmd.inject(makeTmuxCommand('stop', 'mc'));
                     await interaction.reply('Requested stop command');
                 }
                 else if (subcommand === 'palstart') {
-                    remotecmd.inject(makeTmuxCommand('~/emu/palstart.sh'));
+                    remotecmd.inject(makeTmuxCommand('~/emu/palstart.sh', 'pal'));
                     await interaction.reply('Requested pal server start command');
                 }
                 else {
@@ -491,6 +490,6 @@ function setRandomBanner(channel) {
     console.log('Server banner has been changed to id:' + index);
 }
 
-function makeTmuxCommand(cmd) {
-    return `tmux send-keys -t ${TMUX_ID} ${cmd} ENTER`;
+function makeTmuxCommand(cmd, tmuxId) {
+    return `tmux send-keys -t ${tmuxId} '${cmd}' ENTER`;
 }
