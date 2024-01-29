@@ -311,7 +311,7 @@ client.on('interactionCreate', async interaction => {
                         title = '> Result:Too long so cutted';
                         result = result.substring(0, 1000);
                     }*/
-                    await interaction.reply(`@${interaction.user.id} try executing: ${order}`);
+                    await interaction.reply(`<@${interaction.user.id}> try executing: ${order}`);
                     //interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
                 else if (subcommand === 'tmux') { // A shortcut to inject tmux command for minecraft server
