@@ -10,13 +10,13 @@ module.exports.data = () => {
             .setName('changebanner')
             .setDescription('Select a random server banner in banner channel. You can use this only in banner channel'),
         new SlashCommandBuilder()
-            .setName('mcserver')
-            .setDescription('Send commands to mc server')
+            .setName('server')
+            .setDescription('Send commands to yamato server')
             .addSubcommand(sub =>
-                    sub.setName('start')
+                sub.setName('start')
                     .setDescription('Start mc server via tmux'))
             .addSubcommand(sub =>
-                    sub.setName('cmd')
+                sub.setName('cmd')
                     .setDescription('Input any command')
                     .addStringOption(option =>
                         option.setName('c')
@@ -29,7 +29,10 @@ module.exports.data = () => {
                             .setDescription('Command')))
             .addSubcommand(sub =>
                 sub.setName('stop')
-                    .setDescription('Stop mc server via tmux')),
+                    .setDescription('Stop mc server via tmux'))
+            .addSubcommand(sub =>
+                sub.setName('palstart')
+                    .setDescription('Start pal server')),
         buildMentionCommand('natsumikan', 'leader Usio'),
         buildMentionCommand('n', 'leader Natsumikan'),
         buildMentionCommand('hal', 'bot manager HAL9000'),
