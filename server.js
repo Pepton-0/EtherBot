@@ -491,5 +491,5 @@ function setRandomBanner(channel) {
 }
 
 function makeTmuxCommand(cmd, tmuxId) {
-    return `tmux send-keys -t ${tmuxId} '${cmd}' ENTER`;
+    return `tmux send-keys -t ${tmuxId}.0 '${cmd}' ENTER`;
 }
