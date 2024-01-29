@@ -30,18 +30,10 @@ async function internalConnect(host, username, privateKey) {
 }
 
 async function internalInject(command) {
+    console.log("Start injecting " + command);
     await connection.connect(connectData);
-    let result = await connection.execCommand(command, { options: { pty: true } });
-    let str = '';
-    if (result.stdout && result.stdout.length >= 1)
-        str += '```' + result.stdout + '```';
-    if (result.stderr && result.stderr.length >= 1)
-        str += '```' + result.stderr + '```';
-    if (result.signal && result.signal.length >= 1)
-        str += '```' + result.signal + '```';
-    console.log(str);
+    connection.execCommand(command, { options: { pty: true } }).then((result)=>connection.dispose());
     connection.dispose();
-
     /** 
     if (!isConnected) {
         console.error("Tried to connect ssh server without preparation!");
