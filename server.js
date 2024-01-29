@@ -323,7 +323,7 @@ client.on('interactionCreate', async interaction => {
                     await interaction.reply('Requested stop command');
                 }
                 else if (subcommand === 'palstart') {
-                    await remotecmd.inject(makeTmuxCommand('palstart'));
+                    await remotecmd.inject(makeTmuxCommand('~/emu/palstart.sh'));
                     await interaction.reply('Requested pal server start command');
                 }
                 else {
