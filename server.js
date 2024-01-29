@@ -302,16 +302,17 @@ client.on('interactionCreate', async interaction => {
                     await interaction.reply('Requsted start command');
                 }
                 else if (subcommand === 'cmd' && interaction.user.id === HAL_ID) { // The way to inject normal linux commands
-                    let result = await remotecmd.inject(interaction.options.getString('c', true));
+                    const order = interaction.options.getString('c', true);
+                    let result = remotecmd.inject(order);/*
                     if (!(result && result.length >= 1))
-                        reuslt = "No response";
+                        result = "No response";
                     let title = '> Result:';
                     if (result.length > 1000) {
                         title = '> Result:Too long so cutted';
                         result = result.substring(0, 1000);
-                    }
-                    await interaction.reply(title);
-                    interaction.channel.send(result.length >= 1 ? result : "Empty response");
+                    }*/
+                    await interaction.reply(order);
+                    //interaction.channel.send(result.length >= 1 ? result : "Empty response");
                 }
                 else if (subcommand === 'tmux') { // A shortcut to inject tmux command for minecraft server
                     let cmd = interaction.options.getString('c', true);
