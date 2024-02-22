@@ -371,8 +371,7 @@ client.on('interactionCreate', async interaction => {
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isMessageContextMenuCommand()) return;
-    const { message } = interaction.targetMessage;
-    message.pinned = true;
+    const message = interaction.targetMessage;
     interaction.reply('Pinned this message');
 });
 /*
