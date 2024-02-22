@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
 const hentaiCollection = require('./HentaiCollection');
 
 module.exports.data = () => {
@@ -39,6 +40,9 @@ module.exports.data = () => {
         buildMentionCommand('h', 'bot manager HAL9000'),
         buildMentionCommand('mogtam', 'admin Mogtam'),
         buildMentionCommand('m', 'admin Mogtam'),
+        new ContextMenuCommandBuilder()
+            .setName('FooBar')
+            .setType(ApplicationCommandType.Message)
     ];
     for (const command of hentaiCollection.getHentaiCommands())
         commandList.push(command);
