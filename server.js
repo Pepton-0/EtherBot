@@ -372,8 +372,8 @@ client.on('interactionCreate', async interaction => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isMessageContextMenuCommand()) return;
     const message = interaction.targetMessage;
-
-    interaction.reply('Pinned this message');
+    message.pin();
+    interaction.reply('Pinned the message');
 });
 /*
 client.on('voiceStateUpdate', (oldMember, newMember) => {
