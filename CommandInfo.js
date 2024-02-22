@@ -41,7 +41,7 @@ module.exports.data = () => {
         buildMentionCommand('mogtam', 'admin Mogtam'),
         buildMentionCommand('m', 'admin Mogtam'),
         new ContextMenuCommandBuilder()
-            .setName('FooBar')
+            .setName('Pin this message')
             .setType(ApplicationCommandType.Message)
     ];
     for (const command of hentaiCollection.getHentaiCommands())
