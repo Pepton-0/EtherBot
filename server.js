@@ -4,7 +4,7 @@
 
 const express = require('express');
 const querystring = require('querystring');
-const { Client, GatewayIntentBits, IntentsBitField, Channel } = require('discord.js');
+const { Client, GatewayIntentBits, IntentsBitField, Channel, ContextMenuCommandBuilder, ApplicationCommandType} = require('discord.js');
 const pinger = require('minecraft-server-ping');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -369,6 +369,12 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isMessageContextMenuCommand()) return;
+    const { message } = interaction.targetMessage;
+    message.pinned = true;
+    interaction.reply('Pinned this message');
+});
 /*
 client.on('voiceStateUpdate', (oldMember, newMember) => {
     console.log('Help me plz');
@@ -442,6 +448,7 @@ const rest = new REST({ version: 9 }).setToken(BOT_TOKEN);
         console.error(error);
     }
 })();
+
 
 client.login(BOT_TOKEN);
 
